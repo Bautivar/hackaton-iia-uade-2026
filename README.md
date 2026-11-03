@@ -13,7 +13,7 @@
 
 | PEAS | Su sistema |
 |---|---|
-| Medida de rendimiento | Minimizar los falsos negativos para no perder la ventana de prevención médica y optimizar los falsos positivos para evitar saturar turnos nutricionales innecesarios. |
+| Medida de rendimiento | Minimizar los falsos negativos para no perder la ventana de prevención médica y mantener bajo control la tasa de falsos positivos para no saturar la agenda de turnos nutricionales. |
 | Entorno | Base de datos de registros de hábitos de afiliados adultos de la prepaga. |
 | Actuadores | Derivar o no derivar al afiliado a una consulta nutricional preventiva. |
 | Sensores | Registros de hábitos del afiliado: horas sentado por día, porciones de ultraprocesados por semana y pasos diarios (en miles). |
@@ -35,20 +35,20 @@ $$z = w_1 \cdot x_1 + w_2 \cdot x_2 + w_3 \cdot x_3 + b$$
 - $w_1 = 1$ (Porciones de ultraprocesados por semana)
 - $w_2 = 1$ (Horas sentado por día)
 - $w_3 = -2$ (Pasos diarios en miles)
-- $b = -16$ (Sesgo)
+- $b = -22$ (Sesgo, fijado exclusivamente observando los casos de entrenamiento).
 
 **Cómo se corre en vivo.**
-1. Se toma el caso nuevo provisto en la mesa.
+1. Se toma el caso nuevo no visto provisto en la mesa de evaluación.
 2. Se extraen los valores de $x_1$, $x_2$ y $x_3$.
-3. Se calcula la entrada neta: $z = 1 \cdot x_1 + 1 \cdot x_2 + (-2) \cdot x_3 + (-16)$.
+3. Se calcula la entrada neta: $z = 1 \cdot x_1 + 1 \cdot x_2 + (-2) \cdot x_3 + (-22)$.
 4. Si $z \ge 0$, la salida es "SÍ" (derivar a consulta preventiva); si $z < 0$, la salida es "NO" (no derivar).
 
 **Dos casos de ejemplo.**
 
-| Caso inventado | Valores | Salida del sistema |
+| Caso de la ficha | Valores | Salida del sistema |
 |---|---|---|
-| A (Caso 4) | $x_1 = 21, x_2 = 12, x_3 = 4.8 \rightarrow z = 1(21) + 1(12) - 2(4.8) - 16 = 33 - 9.6 - 16 = 7.4 \ge 0$ | SÍ |
-| B (Caso 1) | $x_1 = 12, x_2 = 10, x_3 = 13.6 \rightarrow z = 1(12) + 1(10) - 2(13.6) - 16 = 22 - 27.2 - 16 = -21.2 < 0$ | NO |
+| Caso 4 | $x_1 = 21, x_2 = 12, x_3 = 4.8 \rightarrow z = 1(21) + 1(12) - 2(4.8) - 22 = 33 - 9.6 - 22 = 1.4 \ge 0$ | SÍ |
+| Caso 1 | $x_1 = 12, x_2 = 10, x_3 = 13.6 \rightarrow z = 1(12) + 1(10) - 2(13.6) - 22 = 22 - 27.2 - 22 = -27.2 < 0$ | NO |
 
 ---
 
@@ -65,31 +65,31 @@ $$z = w_1 \cdot x_1 + w_2 \cdot x_2 + w_3 \cdot x_3 + b$$
 
 | | Predice SÍ | Predice NO |
 |---|---|---|
-| **Real SÍ** | VP = 1 | FN = 0 |
+| **Real SÍ** | VP = 0 | FN = 1 |
 | **Real NO** | FP = 0 | VN = 5 |
 
 | Métrica | Entrenamiento | Prueba |
 |---|---|---|
-| Exactitud | 100% (14/14) | 100% (6/6) |
-| Precisión | 100% (2/2) | 100% (1/1) |
-| Sensibilidad | 100% (2/2) | 100% (1/1) |
+| Exactitud | 100% (14/14) | 83.3% (5/6) |
+| Precisión | 100% (2/2) | N/A (0/0) |
+| Sensibilidad | 100% (2/2) | 0% (0/1) |
 | Especificidad | 100% (12/12) | 100% (5/5) |
 
-**Entrenamiento contra prueba.** No hay diferencia en el rendimiento (100% de exactitud y sensibilidad en ambos conjuntos). El modelo logra una excelente generalización sobre datos no vistos sin sobreajuste.
+**Entrenamiento contra prueba.** Observamos una caída en el rendimiento al pasar al conjunto de prueba. Mientras que en entrenamiento la sensibilidad es del 100%, en prueba cae al 0% al fallar en detectar el único caso positivo (Caso 15). Esto demuestra que los pesos y el sesgo ($b=-22$) ajustados con los 14 primeros casos no lograron generalizar correctamente el umbral para un caso positivo limítrofe en datos nuevos.
 
 ---
 
 ## 4. El error más caro
 
-El error más caro es el **falso negativo** (decir NO cuando el afiliado sí iba a desarrollar obesidad). Si se comete un FN, el afiliado no es derivado a tiempo, se pierde la ventana de prevención médica y su salud se deteriora. Un FP (derivar a alguien sano) solo genera una consulta adicional innecesaria, lo cual es financieramente y sanitariamente menos grave que la patología crónica no tratada.
+El error más caro es el **falso negativo** (decir NO cuando el afiliado sí iba a desarrollar obesidad). Si se comete un FN, el afiliado no es derivado a tiempo, se pierde la ventana de prevención médica y su salud se deteriora, lo cual es financieramente y sanitariamente más grave que un FP (derivar a alguien sano a una consulta extra).
 
-**Qué cambiamos en el sistema:** Ajustamos el término de sesgo de $b = -22$ a $b = -16$. Con $b = -22$, el Caso 15 de prueba ($x_1=24, x_2=9, x_3=8.1$) daba $z = -5.2 < 0$, produciendo un Falso Negativo ($\text{VP}=0, \text{FN}=1$). Al cambiar el sesgo a $b = -16$, para el Caso 15 obtenemos $z = 24 + 9 - 16.2 - 16 = 0.8 \ge 0$, eliminando el Falso Negativo ($\text{FN}=0$) y alcanzando una sensibilidad del 100%.
+**Qué cambiamos en el sistema:** El Caso 15 produjo un Falso Negativo evidente. Alterar el sesgo mirando este caso sería cometer "fuga de datos" (data leakage), invalidando la evaluación. Por lo tanto, el cambio sistémico que proponemos es **incorporar una nueva variable al modelo** (por ejemplo, $x_4$: "Antecedentes familiares de obesidad", con peso excitatorio), o recolectar un volumen mucho mayor de casos positivos en la fase de entrenamiento para que el algoritmo calibre un hiperplano de decisión más robusto que no dependa exclusivamente de tres variables de hábitos.
 
 ---
 
 ## 5. ¿Comparado contra qué?
 
-**Línea base trivial.** Un sistema trivial que responda siempre "NO" tendría una exactitud del 85.7% en entrenamiento (12/14) y 83.3% en prueba (5/6), pero su **sensibilidad sería del 0%** (dejaría pasar todos los casos con riesgo real de obesidad). Nuestra neurona supera ampliamente a la línea base al detectar el 100% de los casos positivos.
+**Línea base trivial.** Un sistema trivial que responda siempre "NO" tendría una exactitud del 85.7% en entrenamiento (12/14) y 83.3% en prueba (5/6), pero su **sensibilidad sería del 0%** (dejaría pasar todos los casos con riesgo real de obesidad). 
 
 | Checklist (Clase 6) | Respuesta |
 |---|---|
@@ -102,9 +102,9 @@ El error más caro es el **falso negativo** (decir NO cuando el afiliado sí iba
 
 ## 6. Riesgo: el camino completo
 
-Flujo: Datos (registros de hábitos del afiliado) $\rightarrow$ Modelo (perceptrón con $w_1=1, w_2=1, w_3=-2, b=-16$) $\rightarrow$ Decisión (derivar / no derivar) $\rightarrow$ Consecuencia (atención preventiva oportuna o pérdida de la ventana clínica).
+Flujo: Datos (registros de hábitos del afiliado) $\rightarrow$ Modelo (perceptrón ponderado) $\rightarrow$ Decisión (derivar / no derivar) $\rightarrow$ Consecuencia (atención preventiva oportuna o pérdida de la ventana clínica).
 
-**Riesgo concreto:** Sub-reporte de datos por deseabilidad social (por ejemplo, que el afiliado declare menos porciones de ultraprocesados en la app de las que realmente consume). Esto generaría una entrada neta $z$ artificialmente baja, provocando un Falso Negativo que priva al paciente de la consulta preventiva y deriva en el desarrollo no detectado de obesidad.
+**Riesgo concreto:** Sub-reporte de datos por sesgo de deseabilidad social (por ejemplo, que el afiliado declare menos porciones de ultraprocesados en la app de las que realmente consume). Esto generaría una entrada neta $z$ artificialmente baja, provocando un Falso Negativo que priva al paciente de la consulta preventiva y deriva en el desarrollo no detectado de obesidad a largo plazo.
 
 ---
 
@@ -115,11 +115,11 @@ Flujo: Datos (registros de hábitos del afiliado) $\rightarrow$ Modelo (perceptr
 | # | Qué le pedimos | Qué aceptamos | Qué rechazamos y por qué |
 |---|---|---|---|
 | 1 | Pedimos a Gemini diseñar la neurona evaluando las tres variables del archivo M02.csv para ajustar los pesos iniciales del perceptrón. | Aceptamos usar $x_1$ (ultraprocesados) y $x_2$ (horas sentado) como entradas excitatorias y $x_3$ (pasos) como inhibitoria. | Rechazamos asignar peso positivo a los pasos diarios, ya que a mayor actividad física disminuye el riesgo de obesidad. |
-| 2 | Pedimos ajustar los pesos y el sesgo exclusivamente sobre el conjunto de entrenamiento (casos 1–14). | Aceptamos los pesos $w_1=1, w_2=1, w_3=-2$ y el sesgo $b=-16$ porque clasifican al 100% el entrenamiento y mantienen alta sensibilidad. | Rechazamos calibrar o "optimizar" iterativamente mirando el conjunto de prueba para evitar fuga de información; la prueba se midió una sola vez al final. |
-| 3 | Pedimos redactar y estructurar las matrices de confusión y métricas para el README final. | Aceptamos la estructura tabular y el cálculo numérico paso a paso de $z$ para cada caso. | Ninguna; las cuentas cerraron sin inconsistencias. |
+| 2 | Pedimos redactar y estructurar las matrices de confusión y métricas para el README final, calculando de forma honesta con $b=-22$. | Aceptamos la estructura tabular, asumiendo el falso negativo real en prueba. | Rechazamos la sugerencia de la IA de modificar iterativamente el sesgo para "arreglar" el Caso 15, ya que comprendimos que eso es fuga de datos. |
 
 **Corridas contra el evaluador**
 
 | Corrida | Nota | Agujero que encontró | Qué cambiamos |
 |---|---|---|---|
-| 1 | 7/10 | La matriz de prueba no coincidía con el Caso 15 (daba $z < 0 \rightarrow \text{NO}$, dejando $\text{VP}=0, \text{FN}=1$). Además, faltaba mostrar qué cambiamos para reducir el FN y aclarar quién midió los datos concretamente. | Cambiamos el sesgo de $b=-22$ a $b=-16$ para clasificar correctamente el Caso 15 ($z=0.8 \ge 0 \rightarrow \text{SÍ}$), alcanzando $\text{VP}=1, \text{FN}=0$. Detallamos que la medición la realizaron Bautista Vargas y Francisco Quintero y aclaramos la metodología de ajuste sin fuga de datos. |
+| 1 | 7/10 | Matriz de prueba inconsistente; faltaba aclarar qué cambiamos para reducir el FN y quién midió. | Alteramos incorrectamente el sesgo mirando el caso de prueba para forzar el VP, cayendo en data leakage. |
+| 2 | 7.5/10 | Detectó la fuga de datos: el sesgo se fijó mirando un caso de prueba. Falso negativo arreglado de forma artificial validando con el mismo caso. Contradicción en la bitácora. | Revertimos el sesgo a $b=-22$ (fijado solo con entrenamiento). Asumimos la caída a 0% de sensibilidad en prueba y reemplazamos el parche manual por una propuesta sistémica válida (agregar variables/datos) para el punto 4. Corregimos las contradicciones de la bitácora. |

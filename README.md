@@ -3,8 +3,8 @@
 > **Hackatón IIA · UADE · 3.4.257.** Este README es la plantilla del grupo. En su fork, reemplacen todo lo que está entre `< >` y borren esta nota. Las bases están en `BASES.md` y su ficha en `problematicas/`.
 
 **Integrantes:** <Bautista Vargas> · <Francisco Quintero>
-**IA declarada:** <Perplexity>
-**Pista:** <Neurona / Reglas / Agente>
+**IA declarada:** <Gemini>
+**Pista:** <Reglas>
 **Publicación en LinkedIn:** <link>
 
 ---

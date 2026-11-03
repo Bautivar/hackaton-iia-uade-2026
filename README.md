@@ -44,59 +44,51 @@ No son lo mismo: El objetivo es un proposito medico / asistencial, mientras que 
 
 | Caso inventado | Valores | Salida del sistema |
 |---|---|---|
-| A (Caso 4) x_1 = 21, x_2 = 12, x_3 = 4.8 --> z = 1(21)+1(12)-2(4.8)-22 = 33 - 9.6 - 22 = 1.4 >= 0   SÍ |
-| B (Caso 1) x_1 = 12, x_2 = 10, x_3 = 13.6 --> z = 1(12)+1(10)-2(13.6)-22 = 22 - 27.2 - 22 = -27.2 < 0   NO |
+| A (Caso 4) x_1 = 21, x_2 = 12, x_3 = 4.8 | z = 1(21)+1(12)-2(4.8)-22 = 33 - 9.6 - 22 = 1.4 | SÍ 
+| B (Caso 1) x_1 = 12, x_2 = 10, x_3 = 13.6 | z = 1(12)+1(10)-2(13.6)-22 = 22 - 27.2 - 22 = -27.2 | NO
 
 ## 3. Medición
-Entrenamiento (casos 1–14):Predice SÍ / Predice NO
-Real SÍ: VP = 2, FN = 0
-Real NO: FP = 0, VN = 12
-Prueba (casos 15–20):
-Predice SÍ / Predice NO
-Real SÍ: VP = 1, FN = 0
-Real NO: FP = 0, VN = 5
-
 **Entrenamiento (casos 1–14)**
 
 | | Predice SÍ | Predice NO |
 |---|---|---|
-| **Real SÍ** | VP = <> | FN = <> |
-| **Real NO** | FP = <> | VN = <> |
+| **Real SÍ** | VP = 2 | FN = 0 |
+| **Real NO** | FP = 0 | VN = 12 |
 
 **Prueba (casos 15–20)**
 
 | | Predice SÍ | Predice NO |
 |---|---|---|
-| **Real SÍ** | VP = <> | FN = <> |
-| **Real NO** | FP = <> | VN = <> |
+| **Real SÍ** | VP = 1 | FN = 0 |
+| **Real NO** | FP = 0 | VN = 5 |
 
 | Métrica | Entrenamiento | Prueba |
 |---|---|---|
-| Exactitud | <> | <> |
-| Precisión | <> | <> |
-| Sensibilidad | <> | <> |
-| Especificidad | <> | <> |
+| Exactitud | 100% (14/14) | 100 (6/6) |
+| Precisión | 100% (2/2) | 100% (1/1) |
+| Sensibilidad | 100% (2/2) | 100% (1/1) |
+| Especificidad | 100% (12/12) | 100% (5/5) |
 
-**Entrenamiento contra prueba.** <¿Hay diferencia? ¿Por qué? ¿Sobreajuste o generalización?>
+**Entrenamiento contra prueba.** No hay diferencia en el rendimiento
 
 ## 4. El error más caro
 
-<¿Es peor el falso positivo o el falso negativo en su problema? ¿Por qué, según la ficha? ¿Qué cambiaron en el sistema para cometer menos ese error?>
+El error mas caro es el falso negativo (decir NO cuando el afiliado iba a desarrollar una obesidad). Si se comete un FN, el afiliado no es derivado a tiempo, se pierde la ventana de prevencion medica y su salud se deteriora. Un FP (derivar a alguien sano), solo genera una consulta adicional lo cual es indeseable pero financiera y sanitariamente menos grave que la patologia contraria.
 
 ## 5. ¿Comparado contra qué?
 
-**Línea base trivial.** <Qué resultado saca un sistema que responde siempre lo mismo, y cómo se compara el suyo.>
+**Línea base trivial.** Un sistema trivial que responde siempre NO tendria un acierto del 85% pero una sensibilidad del 0%. Nuestra neurona supera ampliamente la linea base al detectar correctamente todos los casos de riesgo real.
 
 | Checklist (Clase 6) | Respuesta |
 |---|---|
-| ¿Qué datos? | <> |
-| ¿Qué métrica? | <> |
-| ¿Comparado contra qué? | <> |
-| ¿Quién lo midió? | <> |
+| ¿Qué datos? | Habitos del afiliado |
+| ¿Qué métrica? | Exactitud, precision, sensibilidad y especificidad |
+| ¿Comparado contra qué? | Linea de base trivial |
+| ¿Quién lo midió? | Un experto en convadilacion de gemini |
 
 ## 6. Riesgo: el camino completo
 
-<Datos → modelo → decisión → consecuencia aplicado a su caso. Al menos un riesgo concreto.>
+Flujo de datos(registro de habitos) → Perceptron con pesos y sesgo → Derivar o no derivar → atencion preventiva oportuna o perdida de ventana de clinica>
 
 ## 7. Bitácora
 

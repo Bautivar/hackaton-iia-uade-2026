@@ -1,34 +1,44 @@
-# <Código> · <Detectar enfermedades bacterianas y recomendar antibioticos>
+# M02 · Obesidad y alimentación saludable
 
-> **Hackatón IIA · UADE · 3.4.257.** Este README es la plantilla del grupo. En su fork, reemplacen todo lo que está entre `< >` y borren esta nota. Las bases están en `BASES.md` y su ficha en `problematicas/`.
-
-**Integrantes:** <Bautista Vargas> · <Francisco Quintero>
-**IA declarada:** <Gemini>
-**Pista:** <Reglas>
-**Publicación en LinkedIn:** <link>
+**Integrantes:** Bautista Vargas · Francisco Quintero
+**IA declarada:** Gemini
+**Pista:** Neuronas
+**Publicación en LinkedIn:** [link](https://www.linkedin.com/in/bautista-ezequiel-vargas-653851395/)
 
 ---
 
 ## 1. Formulación y PEAS
 
-**La pregunta.** <Para cada caso, ¿…? SÍ significa: …>
+**La pregunta.** Para cada caso, ¿El afiliado desarrolla obesidad en los 12 mese siguientes? SÍ significa: el afiliado desarrolla obesidad en los 12 meses siguientes.
 
 | PEAS | Su sistema |
 |---|---|
-| Medida de rendimiento | <cómo se sabe si decidió bien> |
-| Entorno | <dónde y con qué decide> |
-| Actuadores | <qué hace con la decisión> |
-| Sensores | <qué datos recibe> |
+| Medida de rendimiento | Minimizar los falsos negativos para no perder la ventana de prevencion y optimizar los falsos positivos para evitar saturar turnos nutricionales innecesarios |
+| Entorno | Base de datos de los afiliados |
+| Actuadores | Derivar o no derivar al afiliado de una consulta preventiva |
+| Sensores | Registros de habito de afiliado: horas sentado, porciones de ultraprocesados y pasos diarios |
 
-**Objetivo y métrica.** <Qué es lo que de verdad importa en su problema y con qué métrica lo van a medir. ¿Son lo mismo?>
+**Objetivo y métrica.** El objetivo es detectar oportunamente a los afiliados con riesgo alto de obesidad para mejorar su calidad de vida y reducir costos medicos a largo plazo. Como metrica se evaluara mediante la sensibilidad y la exactitud global medidas sobre los conjuntos de entrenamiento y prueba. 
+No son lo mismo: El objetivo es un proposito medico / asistencial, mientras que la metrica es un indicador numerico cuantitativo
 
 ## 2. El sistema
 
-**Cómo decide.** <Neurona: pesos y sesgo. Reglas: la lista de reglas si‑entonces. Agente: la regla con la que elige la acción.>
+**Cómo decide.** La neurona utiliza una combinacion lineal de las caracteristicas de entrada multiplicadas por su peso respectivos mas un termiuno de sesgo. Si z es >= 0 es SI y NO cuando z < 0 : z = w1 * x1 + w2 * x2 + w3 * x3 + b
 
-**Variables que usa y por qué.** <Cuáles usa, cuáles descarta y por qué.>
+**Variables que usa y por qué.** 
+- x1 Porciones de ultraprocesados por semana : Usada porque su principal factor de riesgo dietario para la ganancia de peso.
+- x2 Horas sentado por dia (h) : Usada para capturar el nivel de sedentarismo.
+- x3 pasos diarios en miles : Usada comno variable protectora (inhibitoria) restando riesgo a la mayor actividad fisica
+- w1 = 1 (porcion de ultraprocesados)
+- w2 = 1 (hora sentado)
+- w3 = -2 (pasos diarios en miles)
+- b = -22 (sesgo)
 
-**Cómo se corre en vivo.** <Pasos concretos para resolver un caso nuevo: link al Colab, a la planilla o la cuenta a mano.>
+**Cómo se corre en vivo.**
+- 1 : Se toma el caso nuevo provisto en la mesa
+- 2 : Se extraen los valores de x1, x2 y x3
+- 3 : Se calcula la entrada z = 1*x1 + 1*x2 + (-2)*x3 + (-22)
+- 4 : Si z >= a 0, la salida es "Si"(derivar a consulta medica) y si z < 0, la salida es "NO"(no derivar a la consulta medica)
 
 **Dos casos de ejemplo.**
 

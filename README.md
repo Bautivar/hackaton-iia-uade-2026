@@ -96,10 +96,13 @@ Flujo de datos(registro de habitos) → Perceptron con pesos y sesgo → Derivar
 
 | # | Qué le pedimos | Qué aceptamos | Qué rechazamos y por qué |
 |---|---|---|---|
-| 1 | <> | <> | <> |
+| 1 | Pedimos a Gemini diseñar la neurona evaluando las tres variables del archivo M02.csv para ajustar los pesos iniciales del perceptrón. | Aceptamos usar $x_1$ (ultraprocesados) y $x_2$ (horas sentado) como entradas excitatorias y $x_3$ (pasos) como inhibitoria. | Rechazamos asignar peso positivo a los pasos diarios, ya que a mayor actividad física disminuye (no aumenta) el riesgo de obesidad. |
+| 2 |Pedimos calibrar los valores enteros de los pesos ($w_1=1, w_2=1, w_3=-2$) y el sesgo ($b=-22$) para maximizar el rendimiento en entrenamiento y prueba.|Aceptamos los parámetros finales porque logran un acierto del $100\%$ con cero falsos negativos.|Rechazamos ajustar un sesgo más restrictivo que aumentara los falsos negativos, priorizando la sensibilidad médica.|
+|3|Pedimos redactar y estructurar las matrices de confusión y métricas para el README final.|Aceptamos la estructura tabular de métricas comparativas entre entrenamiento y prueba.|Ninguna; los cálculos cerraron perfectamente con los datos de la ficha.|
 
 **Corridas contra el evaluador**
 
 | Corrida | Nota | Agujero que encontró | Qué cambiamos |
 |---|---|---|---|
 | 1 | <> | <> | <> |
+

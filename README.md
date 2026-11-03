@@ -44,10 +44,17 @@ No son lo mismo: El objetivo es un proposito medico / asistencial, mientras que 
 
 | Caso inventado | Valores | Salida del sistema |
 |---|---|---|
-| A | <…> | <SÍ/NO> |
-| B | <…> | <SÍ/NO> |
+| A (Caso 4) x_1 = 21, x_2 = 12, x_3 = 4.8 --> z = 1(21)+1(12)-2(4.8)-22 = 33 - 9.6 - 22 = 1.4 >= 0   SÍ |
+| B (Caso 1) x_1 = 12, x_2 = 10, x_3 = 13.6 --> z = 1(12)+1(10)-2(13.6)-22 = 22 - 27.2 - 22 = -27.2 < 0   NO |
 
 ## 3. Medición
+Entrenamiento (casos 1–14):Predice SÍ / Predice NO
+Real SÍ: VP = 2, FN = 0
+Real NO: FP = 0, VN = 12
+Prueba (casos 15–20):
+Predice SÍ / Predice NO
+Real SÍ: VP = 1, FN = 0
+Real NO: FP = 0, VN = 5
 
 **Entrenamiento (casos 1–14)**
 
